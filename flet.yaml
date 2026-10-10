@@ -1,6 +1,15 @@
 app:
   name: "Менеджер Задач"
   package: "com.home.tasker"
-  version: "1.0.2"
-  build_version: 3
+  version: "1.0.4"
+  build_version: 4
   main_module: Tasker # Указываем Tasker вместо main
+
+assets:
+  dir: assets
+
+windows:
+  icon: assets/Tasker.ico   # Если решите собрать .exe
+
+android:
+  icon: assets/Tasker.png   # Для сборки вашего Android .apk
