@@ -9,7 +9,7 @@ assets:
   dir: assets
 
 windows:
-  icon: assets/Tasker.ico
+  icon: assets/icon.ico
 
 android:
-  icon: assets/Tasker.png
+  icon: assets/icon.png

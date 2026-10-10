@@ -39,9 +39,9 @@ class TaskManagerApp:
         self.page.window_height = 320
         self.need_refresh = False
         if page.platform == ft.PagePlatform.WINDOWS:
-            self.page.window.icon = "/Tasker.ico"
+            self.page.window.icon = "/icon.ico"
         else:
-            self.page.window.icon = "/Tasker.png"
+            self.page.window.icon = "/icon.png"
 
         # Базовый отступ
         #self.page.padding = 10
