@@ -1,0 +1,55 @@
+name: Сборка Flet APK
+
+# Сценарий запускается автоматически при каждом пуше (git push) в ветку main
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Скачиваем код вашего репозитория на сервер GitHub
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # 2. Устанавливаем Java (необходима для компиляции Android Gradle)
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    # 3. Устанавливаем Flutter SDK (версия, совместимая с Flet 1.0)
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.24.x'
+        channel: 'stable'
+
+    # 4. Устанавливаем Python
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    # 5. Устанавливаем зависимости Python и сам пакет flet
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    # 6. Запускаем компиляцию APK-файла с указанием вашей точки входа Tasker.py
+    - name: Build APK
+      run: |
+        flet build apk --module-name Tasker
+
+    # 7. Загружаем готовый APK в артефакты GitHub, чтобы вы могли его скачать
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Tasker-Android-Update
+        path: build/apk/app-release.apk
