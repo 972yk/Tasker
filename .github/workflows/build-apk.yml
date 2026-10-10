@@ -50,11 +50,10 @@ jobs:
       run: |
         python -c "import base64; import os; f = open('tasker-release-key.jks', 'wb'); f.write(base64.b64decode('''${{ secrets.KEYSTORE_BASE64 }}''')); f.close()"
 
-    # 7. Запускаем компиляцию APK-файла с передачей ключей подписи
-    # Переменные окружения заставят Flet использовать наш постоянный ключ вместо дефолтного
+    # 7. Запускаем компиляцию APK-файла.
     - name: Build APK
       run: |
-        flet build apk --module-name Tasker --no-interactive
+        flet build apk --module-name Tasker
       env:
         FLET_ANDROID_SIGNING_KEY_STORE: 'tasker-release-key.jks'
         FLET_ANDROID_SIGNING_KEY_STORE_PASSWORD: '${{ secrets.KEYSTORE_PASSWORD }}'
