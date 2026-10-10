@@ -48,7 +48,7 @@ jobs:
     # [НОВЫЙ ШАГ] Декодируем постоянный ключ из секретов GitHub в файл
     - name: Decode Keystore
       run: |
-        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > tasker-release-key.jks
+        python -c "import base64; import os; f = open('tasker-release-key.jks', 'wb'); f.write(base64.b64decode('''${{ secrets.KEYSTORE_BASE64 }}''')); f.close()"
 
     # 7. Запускаем компиляцию APK-файла с передачей ключей подписи
     # Переменные окружения заставят Flet использовать наш постоянный ключ вместо дефолтного
