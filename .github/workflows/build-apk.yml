@@ -53,7 +53,7 @@ jobs:
     # 7. Запускаем компиляцию APK-файла.
     - name: Build APK
       run: |
-        flet build apk --module-name Tasker
+        yes | flet build apk --module-name Tasker
       env:
         FLET_ANDROID_SIGNING_KEY_STORE: 'tasker-release-key.jks'
         FLET_ANDROID_SIGNING_KEY_STORE_PASSWORD: '${{ secrets.KEYSTORE_PASSWORD }}'
