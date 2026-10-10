@@ -3,13 +3,13 @@ app:
   package: "com.home.tasker"
   version: "1.0.4"
   build_version: 4
-  main_module: Tasker # Указываем Tasker вместо main
+  main_script: Tasker.py     # Правильный параметр для указания главного файла
 
 assets:
   dir: assets
 
 windows:
-  icon: assets/Tasker.ico   # Если решите собрать .exe
+  icon: assets/Tasker.ico
 
 android:
-  icon: assets/Tasker.png   # Для сборки вашего Android .apk
+  icon: assets/Tasker.png
