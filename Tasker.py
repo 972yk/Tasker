@@ -39,6 +39,9 @@ class TaskManagerApp:
         self.page.window_width = 240
         self.page.window_height = 320
         self.need_refresh = False
+        self.app_version = " "
+        self.build_num = " "
+
         if page.platform == ft.PagePlatform.WINDOWS:
             self.page.window.icon = "/icon.ico"
         else:
@@ -53,6 +56,7 @@ class TaskManagerApp:
 
         # Список задач
         self.task_list_view = ft.ListView(expand=True, spacing=4)
+
 
         self.sort_dropdown = ft.Dropdown(
             label="Сортировка",
@@ -78,8 +82,17 @@ class TaskManagerApp:
             #height=34
         )
 
+        self.version_button = ft.TextButton(
+            content=ft.Text(
+                "Версия",
+                color=ft.Colors.GREY_600
+            ),
+            on_click=self.show_about_dialog
+        )
         #top_menu_row = ft.Row([self.sort_dropdown, self.add_button], alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
-        top_menu_row = ft.Row([self.sort_dropdown, self.add_button])
+        top_menu_row = ft.Row([self.sort_dropdown, self.add_button, self.version_button])
+
+        asyncio.create_task(self.update_version_ui())
 
         # Безопасная зона для статус-бара телефона
         safe_top_panel = ft.SafeArea(
@@ -96,6 +109,77 @@ class TaskManagerApp:
 
         self.refresh_list()
         asyncio.create_task(self.background_timer())
+
+    async def update_version_ui(self):
+        real_version_text = await self.get_app_version_string()
+        self.version_button.text = real_version_text
+        self.page.update()
+
+    def show_about_dialog(self, e):
+        about_dialog = ft.AlertDialog(
+            title=ft.Text("О приложении"),
+            content=ft.Text(
+                f"Менеджер Задач Tasker\n\n"
+                f"{self.version_button.text}\n" # Берем уже готовый текст из кнопки
+                f"Платформа: {self.page.platform.value}\n\n"
+                f"Все задачи безопасно сохраняются локально."
+            ),
+            actions=[
+                ft.TextButton("Закрыть", on_click=lambda _: self.close_about_dialog(about_dialog))
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+        self.page.overlay.append(about_dialog)
+        about_dialog.open = True
+        self.page.update()
+
+    def close_about_dialog(self, dialog):
+        dialog.open = False
+        self.page.update()
+
+    async def get_app_version_string(self) -> str:
+        # Проверяем, запущено ли приложение в режиме сборки (на Android или в скомпилированном .exe)
+        # На Android всегда присутствует системный аргумент или MEIPASS
+        is_compiled = hasattr(sys, '_MEIPASS') or os.environ.get('ANDROID_ARGUMENT') or hasattr(sys, 'getandroidsdk')
+
+        if is_compiled:
+            try:
+                # Пытаемся прочитать реальные данные из package_info скомпилированного приложения
+                package_info = await self.page.run_task("flet_package_info")
+                if package_info:
+                    version = package_info.get("version", "1.0.0")
+                    build = package_info.get("build_number", "1")
+                    return f"Версия: {version} (b{build})"
+            except Exception:
+                pass  # Если по какой-то причине метод Flet не ответил, спустимся к запасному варианту
+
+        # Если запущено из PyCharm (режим разработки), читаем flet.yaml напрямую
+        try:
+            # Находим flet.yaml в текущей папке проекта
+            yaml_path = os.path.join(os.getcwd(), "flet.yaml")
+            if os.path.exists(yaml_path):
+                with open(yaml_path, "r", encoding="utf-8") as f:
+                    lines = f.readlines()
+
+                version = "1.0.0"
+                build = "1"
+
+                # Парсим строки без использования тяжелых сторонних библиотек (типа PyYAML)
+                for line in lines:
+                    line = line.strip()
+                    if line.startswith("version:"):
+                        # Очищаем от кавычек и пробелов
+                        version = line.split(":", 1)[1].replace('"', '').replace("'", "").strip()
+                    elif line.startswith("build_version:"):
+                        build = line.split(":", 1)[1].strip()
+
+                return f"Версия: {version} (b{build})"
+        except Exception:
+            pass
+
+        # Полный бэкап, если flet.yaml не найден или поврежден
+        return "Версия: 1.0.0 (local)"
+
 
     def load_tasks(self):
         """Чтение данных по индексам колонок CSV с поддержкой поля Note"""
