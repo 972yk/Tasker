@@ -22,8 +22,7 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    # 3. Устанавливаем точную версию Flutter SDK, которую требует Flet 1.0.4+
-    # Это полностью уберет интерактивный вопрос "Proceed? [y/n]" и ошибку Broken pipe
+    # 3. Устанавливаем точную версию Flutter SDK
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
@@ -47,15 +46,24 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    # 7. Запускаем компиляцию APK-файла.
-    # Флаг --no-interactive запрещает утилите Flet задавать вопросы в консоли
+    # [НОВЫЙ ШАГ] Декодируем постоянный ключ из секретов GitHub в файл
+    - name: Decode Keystore
+      run: |
+        echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > tasker-release-key.jks
+
+    # 7. Запускаем компиляцию APK-файла с передачей ключей подписи
+    # Переменные окружения заставят Flet использовать наш постоянный ключ вместо дефолтного
     - name: Build APK
       run: |
         flet build apk --module-name Tasker --no-interactive
+      env:
+        FLET_ANDROID_SIGNING_KEY_STORE: 'tasker-release-key.jks'
+        FLET_ANDROID_SIGNING_KEY_STORE_PASSWORD: '${{ secrets.KEYSTORE_PASSWORD }}'
 
     # 8. Загружаем готовый APK в артефакты GitHub
+    # В утилите flet build apk путь к собранному файлу обычно 'build/apk' (проверьте логи, если файл переименован)
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: Tasker-Android-Update
-        path: build/apk/app-release.apk
+        path: build/apk
