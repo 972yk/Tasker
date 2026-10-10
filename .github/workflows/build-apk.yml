@@ -1,6 +1,5 @@
 name: Сборка Flet APK
 
-# Сценарий запускается автоматически при каждом пуше (git push) в ветку main
 on:
   push:
     branches: [ main ]
@@ -12,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. Скачиваем код вашего репозитория на сервер GitHub
+    # 1. Скачиваем код вашего репозитория
     - name: Checkout repository
       uses: actions/checkout@v4
 
@@ -23,31 +22,38 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    # 3. Устанавливаем Flutter SDK (версия, совместимая с Flet 1.0)
+    # 3. Устанавливаем точную версию Flutter SDK, которую требует Flet 1.0.4+
+    # Это полностью уберет интерактивный вопрос "Proceed? [y/n]" и ошибку Broken pipe
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.24.x'
+        flutter-version: '3.24.8'
         channel: 'stable'
 
-    # 4. Устанавливаем Python
+    # 4. Автоматически принимаем все лицензии Android SDK в тихом режиме
+    - name: Accept Android Licenses
+      run: |
+        yes | sdkmanager --licenses || true
+
+    # 5. Устанавливаем Python
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
 
-    # 5. Устанавливаем зависимости Python и сам пакет flet
+    # 6. Устанавливаем зависимости Python и flet
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    # 6. Запускаем компиляцию APK-файла с указанием вашей точки входа Tasker.py
+    # 7. Запускаем компиляцию APK-файла.
+    # Флаг --no-interactive запрещает утилите Flet задавать вопросы в консоли
     - name: Build APK
       run: |
-        flet build apk --module-name Tasker
+        flet build apk --module-name Tasker --no-interactive
 
-    # 7. Загружаем готовый APK в артефакты GitHub, чтобы вы могли его скачать
+    # 8. Загружаем готовый APK в артефакты GitHub
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
