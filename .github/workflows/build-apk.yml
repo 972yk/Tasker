@@ -22,11 +22,10 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    # 3. Устанавливаем точную версию Flutter SDK
+    # 3. Устанавливаем стабильную версию Flutter SDK
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.24.8'
         channel: 'stable'
 
     # 4. Автоматически принимаем все лицензии Android SDK в тихом режиме
