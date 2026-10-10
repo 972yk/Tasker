@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 import os
 import csv
 import asyncio
@@ -743,4 +743,4 @@ class TaskManagerApp:
 
 if __name__ == "__main__":
     ft.run(TaskManagerApp)
->>>>>>> 03ff4089e3af8c930918b0deb561a65b5085edb6
+
