@@ -50,12 +50,12 @@ jobs:
       run: |
         python -c "import base64; import os; f = open('tasker-release-key.jks', 'wb'); f.write(base64.b64decode('''${{ secrets.KEYSTORE_BASE64 }}''')); f.close()"
 
-    # 7. Запускаем компиляцию APK-файла.
+    # 7. Запускаем компиляцию APK-файла с передачей ключей подписи
     - name: Build APK
       run: |
         yes | flet build apk --module-name Tasker
       env:
-        FLET_ANDROID_SIGNING_KEY_STORE: 'tasker-release-key.jks'
+        FLET_ANDROID_SIGNING_KEY_STORE: '${{ github.workspace }}/tasker-release-key.jks'
         FLET_ANDROID_SIGNING_KEY_STORE_PASSWORD: '${{ secrets.KEYSTORE_PASSWORD }}'
 
     # 8. Загружаем готовый APK в артефакты GitHub
