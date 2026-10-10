@@ -28,8 +28,9 @@ print(f"База данных задач сохраняется по пути: {
 
 # flet run Tasker.py -w --host 0.0.0.0 --port 4444
 # https://github.com/972yk/Tasker/blob/main/build.yml
-
-
+# "C:\Program Files\JetBrains\PyCharm Community Edition 2022.3\jbr\bin\keytool" -genkey -v -keystore tasker-release-key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias tasker-key -storepass PASS11 -keypass PASS11 -dname "CN=Tasker, O=Home, C=US"
+# certutil -encode tasker-release-key.jks tmp.b64
+# "C:\Program Files\JetBrains\PyCharm Community Edition 2022.3\jbr\bin\keytool" -genkey -v -keystore tasker-release-key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload -storepass PASS11 -keypass PASS11 -dname "CN=Tasker, O=Home, C=US"
 class TaskManagerApp:
     def __init__(self, page: ft.Page):
         self.page = page
